@@ -1,0 +1,29 @@
+
+
+git clone http://github.com/celery/celery/tree/3.1/examples/django/
+
+sudo yum install emacs
+sudo easy_install pip
+sudo yum groupinstall -y "Web Server" "MySQL Database"
+sudo yum install MySQL-python
+sudo yum install gcc
+sudo yum install python-devel
+sudo yum install mysql-devel
+
+
+sudo yum install -y erlang
+
+sudo rpm --import http://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+
+wget http://www.rabbitmq.com/releases/rabbitmq-server/v3.3.4/rabbitmq-server-3.3.4-1.noarch.rpm
+
+sudo yum install rabbitmq-server-3.3.4-1.noarch.rpm
+
+http://github.com/simondlr/Django-Celery-Rabbitmq-full-example
+
+sudo rabbitmq-server
+sudo rabbitmq-server -detached
+sudo rabbitmqctl stop
+
+Requisite Background Process:
+    celery -A proj worker -l info

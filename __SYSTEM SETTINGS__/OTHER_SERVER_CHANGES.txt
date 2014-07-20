@@ -1,0 +1,28 @@
+
+INITIAL AWS SERVER INSTALL REQUIREMENTS:
+
+sudo yum install emacs
+sudo easy_install pip
+sudo yum groupinstall -y "Web Server" "MySQL Database"
+sudo yum install MySQL-python
+sudo yum install gcc
+sudo yum install python-devel
+sudo yum install mysql-devel
+
+------------------------------------------------------------
+
+
+Two changes to  ~/python2.6/site-packages/tastypie/resources.py
+
+
+1. 	changed "from django.conf.urls.defaults import patterns, url"
+
+	to "from django.conf.urls import patterns, url"
+
+
+2. 	changed "from django.db.models.sql.constants import QUERY_TERMS, LOOKUP_SEP"
+
+	to 	"from django.db.models.constants import LOOKUP_SEP
+		from django.db.models.sql.constants import QUERY_TERMS"
+
+These changes were necessary due to Django 1.5 to 1.6 changes.
