@@ -46,3 +46,9 @@ def doc_list(request):
 def doc_detail(request, uuid):
     context = {'pdf': Document.objects.get(uuid=uuid)}
     return render_to_response('pdf/detail.html', context, context_instance=RequestContext(request))
+
+
+from django import forms
+
+class NameForm(forms.Form):
+    your_name = forms.CharField(label='Your name', max_length=100)

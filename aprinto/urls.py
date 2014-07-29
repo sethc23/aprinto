@@ -1,7 +1,9 @@
 from django.conf.urls import patterns, include, url
+from rest_framework import routers
+from api.views import PDF_ViewSet
 
-# from django.contrib import admin
-# admin.autodiscover()
+router = routers.DefaultRouter()
+router.register(r'pdfs', PDF_ViewSet)
 
 from pdf.views import doc_upload, doc_list,doc_detail
 
@@ -20,5 +22,7 @@ urlpatterns = patterns('',
     url(r'^$', doc_upload, name='pdf_upload'),
     url(r'^docs/$', doc_list, name='pdf_list'),
     url(r'^(?P<uuid>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/$', doc_detail, name='pdf_detail'),
-    # url(r'^list/', doc_list, name='pdf_list'),
+    url(r'^api_view/', include(router.urls)),
+    url(r'^api/', include('api.urls', namespace='api')),
+    url(r'^management/', include('management.urls', namespace='management')),
 )
