@@ -3,7 +3,9 @@ BASE_DIR = os_path.dirname(os_path.dirname(__file__))
 BASE_APP_URL = 'http://app.aporodelivery.com/'
 BASE_PRINTER_URL = 'http://printer.aporodelivery.com/'
 BASE_QR_URL = BASE_APP_URL + 'qr/'
-INCL_CHARS = set('ACEFGHJKLNPSTXZ347')
+# INCL_CHARS = set('ACEFGHJKLNPSTXZ347')
+INCL_CHARS = 'ACEFGHJKLNPSTXZ347'
+INCL_CHARS_LEN = len(INCL_CHARS)
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '%6d$oxj6)29$o$^jr)fav8j^sey-&2(gcofj*lk^j%bg#rpci)'
 

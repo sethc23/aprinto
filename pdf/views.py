@@ -12,8 +12,9 @@ from pdf.models import Document
 from app.models import PDF
 
 from django.contrib.auth.models import User
-from aprinto.settings import BASE_QR_URL,INCL_CHARS
+from aprinto.settings import BASE_QR_URL,INCL_CHARS,INCL_CHARS_LEN
 from uuid import uuid4 as get_guid
+from random import randrange
 
 #@login_required
 def doc_upload(request):
@@ -27,23 +28,18 @@ def doc_upload(request):
             doc = form.save(commit=False)
             x=request.POST.dict()
             # doc.user = request.user
-            guid = x['pdf_id']
-            order_tag = ''.join(c for c in guid if c in INCL_CHARS)[:4]
-            QR_url = BASE_QR_URL+guid
-            output = {'order_tag':order_tag,
-                      'QR_url':QR_url}
-
-            doc.pdf_id = guid
-            doc.doc_name = x['name']
-            doc.order_tag = order_tag
-            doc.QR_url = QR_url
+            doc.pdf_id = x['pdf_id']
+            doc.order_tag = ''.join(INCL_CHARS[randrange(0,INCL_CHARS_LEN)] for i in range(0,4))
+            # doc.doc_name = x['name']
+            doc.QR_url = BASE_QR_URL+doc.pdf_id
 
             #doc.user = u
             #doc.date_uploaded = datetime.utcnow()
             doc.save()
             process_file.delay(doc)
             # return HttpResponseRedirect(reverse('pdf_list'))
-            return HttpResponse(str(output))
+            return HttpResponse(str({'order_tag':doc.order_tag,
+                                     'QR_url':doc.QR_url}))
     else:
         # form = DocumentForm()
         form = PDF_Form()

@@ -50,10 +50,15 @@ def upload_pdf(uploadfile,upload_file_url,show_post=False,show_resp=False):
 
     opener = poster.streaminghttp.register_openers()
 
-    guid = str(get_guid()).upper().replace('-','')
+    # guid = str(get_guid()).upper().replace('-','')
+
     params = {'local_document': open(uploadfile,'rb'),
-              'name': 'test_unit_1',
-              'pdf_id':guid}
+              'pdf_id' : get_guid(),
+              'printer_id' : 'printer_id1',
+              'machine_id' : 'machine_id1',
+              'application_name' : 'application_name1',
+              'doc_name' : 'test_unit_1'}
+
     datagen, headers = poster.encode.multipart_encode(params)
     R = urllib2.Request(upload_file_url, datagen, headers)
     if show_resp == True:
