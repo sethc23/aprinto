@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ PDF.doc_name }}</h1>
+
+<ul>
+	<li>PDF id:                 <code>{{ PDF.pdf_id }}</code></li>
+	<li>Order Tag:              {{ PDF.order_tag }}</li>
+    <li>Printer Driver id:      <code>{{ PDF.printer_id }}</code></li>
+	<li>Machine id:             <code>{{ PDF.machine_id }}</code></li>
+    <li>Application Name:       {{ PDF.application_name }}</li>
+    <li>Local Path:             <code>{{ PDF.local_document }}</code></li>
+    <li>QR Url:                 <code>{{ PDF.QR_url }}</code></li>
+</ul>
+
+{% endblock %}

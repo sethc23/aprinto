@@ -14,7 +14,7 @@
 	{% if pdf.date_queued %}       <li>Queued: {{ pdf.date_queued }}</li>{% endif %}
 	{% if pdf.date_process_start %}<li>Process Start: {{ pdf.date_process_start }}</li>{% endif %}
 	{% if pdf.date_process_end %}  <li>Process End: {{ pdf.date_process_end }}</li>{% endif %}
-	{% if pdf.date_exception %}    <li>Exception: {{ pdf.date_exception }}</a></li>
+	{% if pdf.date_exception %}    <li>Exception: {{ pdf.date_exception }}</li>
 	<li><pre>{{ pdf.exception }}</pre></li>
 	{% endif %}
 </ul>

@@ -4,6 +4,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from pdf.models import Document
+from app.models import PDF
 
 
 class DocumentValidationError(forms.ValidationError):
@@ -29,3 +30,11 @@ class DocumentForm(forms.ModelForm):
     class Meta:
         model = Document
         fields = ('name', 'local_document')
+
+
+class PDF_Form(forms.ModelForm):
+    local_document = DocumentField()
+
+    class Meta:
+        model = PDF
+        fields = ('doc_name', 'local_document')

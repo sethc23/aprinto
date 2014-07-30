@@ -14,8 +14,8 @@
 </tr>
 </thead>
 <tbody>
-{% for pdf in pdfs %}<tr>
-	<td><a href="{{ pdf.get_detail_url }}">{{ pdf.name }}</a></td>
+{% for pdf in PDFS %}<tr>
+	<td><a href="{{ pdf.get_detail_url }}">{{ pdf.doc_name }}</a></td>
     <td>{{ pdf.get_status_display }}</td>
 	<td>{% if pdf.date_uploaded %}{{ pdf.date_uploaded|date:"M j, H:i" }}{% endif %}</td>
 	<td>{% if pdf.date_stored %}{{ pdf.date_stored|date:"M j, H:i"  }}{% endif %}</td>
