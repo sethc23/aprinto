@@ -1,66 +1,55 @@
-
-
 import json
 from urllib2 import urlopen,Request
+from poster.encode import multipart_encode
+from poster.streaminghttp import register_openers
 from uuid import uuid4 as get_guid
-from aprinto.settings import BASE_PRINTER_URL,BASE_QR_URL,INCL_CHARS
-# from datetime import datetime as DT
-# THE_PAST = DT(2014,1,2,12,30,0).isoformat()
 
-# def post_json(all_data,p_url):
-#     json_data = json.dumps(all_data)
-#     headers = {'Content-type': 'application/json'}
-#     req = Request(p_url, json_data, headers)
-#     f = urlopen(req)
-#     response = f.read()
-#     f.close()
-#     return response
+def post_json(all_data,p_url,show_post=False,show_resp=False):
 
-# def new_pdf(show_post=False,show_resp=False):
-#     p_url = BASE_PRINTER_URL+'/test/'
-#     print '\t\tnew PDF','\n\t\t\tURL:',p_url
-#
-#     guid = str(get_guid()).upper().replace('-','')
-#     data = [{   "guid"          :   guid,
-#                 "printer_id"    :   "Printer_"+guid[12:16],
-#                 "machine_id"    :   "Machine_"+guid[4:8],
-#                 "doc_name"      :   "Doc_"+guid[8:12],
-#                 "doc_path"      :   "Doc_"+guid[8:12],
-#             }]
-#
-#     if show_post == True:
-#         print '\t\t\tJSON Posted:\n'
-#         print json.dumps(data, indent=4, sort_keys=True)
-#
-#     resp = post_json(data,p_url)
-#     parsed = json.loads(resp)
-#     if show_resp == True:
-#         print '\t\t\tServer Response:\n'
-#         print json.dumps(parsed, indent=4, sort_keys=True)
-#     print '\n\t\t\t--> SUCCESS\n'
-#     return resp
+    if show_post == True:
+        print '\t\t\tJSON Posted:\n'
+        print json.dumps(all_data, indent=4, sort_keys=True)
 
+    json_data = json.dumps(all_data)
+    headers = {'Content-type': 'application/json'}
+    req = Request(p_url, json_data, headers)
+    f = urlopen(req)
+    response = f.read()
+    f.close()
 
-import urllib2
-import poster.encode
-import poster.streaminghttp
+    if show_resp == True:
+        parsed = json.loads(response)
+        print '\t\t\tServer Response:\n'
+        print json.dumps(parsed, indent=4, sort_keys=True)
 
-def upload_pdf(uploadfile,upload_file_url,show_post=False,show_resp=False):
-    print '\t\tupload_pdf -->',uploadfile,'\n\n\t\t\tURL:',upload_file_url
+    return response
 
-    opener = poster.streaminghttp.register_openers()
-
-    # guid = str(get_guid()).upper().replace('-','')
-
-    params = {'local_document': open(uploadfile,'rb'),
-              'pdf_id' : get_guid(),
+def check(post_action='',show_post=False,show_resp=False):
+    p_url = BASE_PRINTER_URL+'api/check/'
+    print '\n\t\tTEST: check',post_action,'\n\t\t\tURL:',p_url
+    guid = str(get_guid())
+    data = [{
+              'pdf_id' : guid,
               'printer_id' : 'printer_id1',
               'machine_id' : 'machine_id1',
               'application_name' : 'application_name1',
-              'doc_name' : 'test_unit_1'}
+              'doc_name' : 'test_unit_1'
+            }]
 
-    datagen, headers = poster.encode.multipart_encode(params)
-    R = urllib2.Request(upload_file_url, datagen, headers)
+    resp = post_json(data,p_url,show_post,show_resp)
+    print '\n\t\t\t--> SUCCESS\n'
+    return guid
+
+def upload_pdf(guid,uploadfile,upload_file_url,show_post=False,show_resp=False):
+    print '\t\tTEST: upload_pdf -->',uploadfile,'\n\n\t\t\tURL:',upload_file_url
+    opener = register_openers()
+
+    params = {'local_document': open(uploadfile,'rb'),
+              'pdf_id' : guid}
+
+    datagen, headers = multipart_encode(params)
+    R = Request(upload_file_url, datagen, headers)
+
     if show_resp == True:
         print '\n\n\t\t\tURL Post Request:'
         print '\n\t\t\t\tHeaders:'
@@ -73,25 +62,23 @@ def upload_pdf(uploadfile,upload_file_url,show_post=False,show_resp=False):
     response = opener.open(R)
 
     if show_post == True:
-        # parsed = json.loads(response)
         print '\n\t\t\tServer Response:'
         print '\n\t\t\t\t',response.read(),'\n'
-        # print json.dumps(parsed, indent=4, sort_keys=True)
-
 
     print '\n\t\t\t--> SUCCESS\n'
     return
 
 
+BASE_PRINTER_URL = 'http://printer.aporodelivery.com/'
 
 print '\n\tTesting...\n'
 print '\tBase URL:',BASE_PRINTER_URL,'\n'
 
-# uploadfile='/Users/admin/Desktop/test.pdf'
+guid = check(post_action='',show_post=True,show_resp=True)
+
 uploadfile='/Users/sethchase/Desktop/test.pdf'
 upload_file_url=BASE_PRINTER_URL
-upload_pdf(uploadfile,upload_file_url,show_post=True,show_resp=True)
-# new_pdf(show_post=True,show_resp=True)
+upload_pdf(guid,uploadfile,upload_file_url,show_post=True,show_resp=True)
 
 print '\n\tTesting COMPLETE\n'
 

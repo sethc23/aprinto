@@ -39,7 +39,7 @@ def path_and_rename(path):
 class PDF(models.Model):
     pdf_id = models.CharField(max_length=38, primary_key=True) # e.g., 6B29FC40-CA47-1067-B31D-00DD010662DA
     created = models.DateTimeField(auto_now=True)
-    order_tag = models.CharField(max_length=4)
+    order_tag = models.CharField(max_length=4,blank=True,null=True)
     printer_id = models.TextField(blank=True,null=True)
     machine_id = models.TextField(blank=True,null=True)
     application_name  = models.TextField(blank=True,null=True)
