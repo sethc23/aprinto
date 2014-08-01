@@ -25,7 +25,8 @@ def check(request):
         order_tag = ''.join(INCL_CHARS[randrange(0,INCL_CHARS_LEN)] for i in range(0,4))
         QR_url = BASE_QR_URL + x['pdf_id']
         output = {  'order_tag'   :   order_tag,
-                    'QR_url'      :   QR_url}
+                    'QR_url'      :   QR_url,
+                    'doc_post_url': 'http://printer.aporodelivery.com'}
         x.update(**output)
         serializer = PDF_serializer(data=x,context={'request': request}) # NOTE:  only 1 data pt here
         if serializer.is_valid():
