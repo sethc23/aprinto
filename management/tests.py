@@ -69,7 +69,8 @@ def upload_pdf(guid,uploadfile,upload_file_url,show_post=False,show_resp=False):
     return
 
 
-BASE_PRINTER_URL = 'http://printer.aporodelivery.com/'
+# BASE_PRINTER_URL = 'http://printer.aporodelivery.com/'
+BASE_PRINTER_URL = 'http://0.0.0.0:8080/'
 
 print '\n\tTesting...\n'
 print '\tBase URL:',BASE_PRINTER_URL,'\n'

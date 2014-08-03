@@ -60,7 +60,7 @@ def doc_list(request):
 #@login_required
 def doc_detail(request, pdf_id):
     # context = {'pdf': Document.objects.get(uuid=uuid)}
-    context = {'PDF': PDF.objects.get(pdf_id=str(pdf_id))}
+    context = {'PDFS': PDF.objects.get(pdf_id=str(pdf_id))}
     return render_to_response('app/detail.html', context, context_instance=RequestContext(request))
 
 
