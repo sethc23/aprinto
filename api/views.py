@@ -26,7 +26,13 @@ def check(request):
         QR_url = BASE_QR_URL + x['pdf_id']
         output = {  'order_tag'   :   order_tag,
                     'QR_url'      :   QR_url,
-                    'doc_post_url': 'http://printer.aporodelivery.com'}
+                    'doc_post_url': 'http://printer.aporodelivery.com',
+                    'qr_code_x' : 5,
+                    'qr_code_y': 1,
+                    'qr_code_scale': .5,        # .5 == 50%
+                    'tag_x' : 5,
+                    'tag_y': 1,
+                    'tag_scale': .5}            # .5 == 50%
         x.update(**output)
         serializer = PDF_serializer(data=x,context={'request': request}) # NOTE:  only 1 data pt here
         if serializer.is_valid():

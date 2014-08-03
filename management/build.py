@@ -18,7 +18,7 @@ os_system('ENV/bin/python manage.py reset_db --noinput')
 os_system('ENV/bin/python manage.py syncdb --noinput')
 
 print '\n\tStarting Development Server ...'
-os_system('ENV/bin/python manage.py runserver 0.0.0.0:80 &')
+os_system('ENV/bin/python manage.py runserver 0.0.0.0:8080 &')
 delay(6)
 
 # os_system('ENV/bin/python management/initialize.py')
