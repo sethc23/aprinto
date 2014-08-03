@@ -21,23 +21,10 @@ def doc_upload(request):
     if request.method == 'POST':
         form = PDF_Form(request.POST, request.FILES)
         if form.is_valid():
-            # u = User.objects.get(username='seth')
-            # u.set_password('seth')
-            # u.save()
-
-            doc = form.save(commit=False)
-            x=request.POST.dict()
-            # doc.user = request.user
-            doc.pdf_id = x['pdf_id']
-            doc.order_tag = ''.join(INCL_CHARS[randrange(0,INCL_CHARS_LEN)] for i in range(0,4))
-            # doc.doc_name = x['name']
-            doc.QR_url = BASE_QR_URL+doc.pdf_id
-
-            #doc.user = u
-            #doc.date_uploaded = datetime.utcnow()
+            doc = PDF.objects.get(pdf_id=form.data.get('pdf_id'))
+            doc.local_document = form.files.get('local_document')
             doc.save()
             process_file.delay(doc)
-            # return HttpResponseRedirect(reverse('pdf_list'))
             return HttpResponse(str({'order_tag':doc.order_tag,
                                      'QR_url':doc.QR_url}))
     else:
@@ -63,8 +50,3 @@ def doc_detail(request, pdf_id):
     context = {'PDFS': PDF.objects.get(pdf_id=str(pdf_id))}
     return render_to_response('app/detail.html', context, context_instance=RequestContext(request))
 
-
-from django import forms
-
-class NameForm(forms.Form):
-    your_name = forms.CharField(label='Your name', max_length=100)

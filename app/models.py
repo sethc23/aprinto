@@ -43,10 +43,14 @@ class PDF(models.Model):
     printer_id = models.TextField(blank=True,null=True)
     machine_id = models.TextField(blank=True,null=True)
     application_name  = models.TextField(blank=True,null=True)
-    doc_name = models.CharField(_("Title"), blank=True, null=True, max_length=100)
-    local_document = models.FileField(_("Local Document"), null=True, blank=True,
+    doc_name = models.CharField(blank=True, null=True, max_length=100)
+    doc_post_url = models.TextField(blank=True,null=True)
+    local_document = models.FileField(null=True, blank=True,
                                       upload_to=path_and_rename(UPLOAD_PATH),
                                       max_length=255)
+    qr_code_x = models.FloatField(null=True, blank=True)
+    qr_code_y = models.FloatField(null=True, blank=True)
+    qr_code_scale = models.FloatField(null=True, blank=True)
     QR_url = models.TextField(blank=True,null=True)
     html = models.TextField(blank=True,null=True)
 
@@ -71,19 +75,30 @@ class PDF(models.Model):
     def __unicode__(self):
         return ' '.join([
                 self.pdf_id,
-                self.created,
-                self.order_tag,
-                self.printer_id,
-                self.machine_id,
-                self.application_name,
-                self.doc_name,
-                self.local_document,
-                self.QR_url,
-                self.html,
+                # self.created,
+                # self.order_tag,
+                # self.printer_id,
+                # self.machine_id,
+                # self.application_name,
+                # self.doc_name,
+                # self.local_document,
+                # self.QR_url,
+                # self.html,
+                # self.remote_document,
+                # self.status,
+                # self.exception,
+                # self.pages,
+                # self.page_html,
+                # self.date_uploaded,
+                # self.date_stored,
+                # self.date_queued,
+                # self.date_process_start,
+                # self.date_process_end,
+                # self.date_exception,
             ])
 
-    def get_detail_url(self):
-        return reverse("pdf_detail", kwargs={'pdf_id': self.pdf_id})
+    # def get_detail_url(self):
+    #     return reverse("pdf_detail", kwargs={'pdf_id': self.pdf_id})
 
     def save(self, **kwargs):
         super(PDF, self).save(**kwargs)
