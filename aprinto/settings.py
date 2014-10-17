@@ -54,11 +54,19 @@ WSGI_APPLICATION = 'aprinto.wsgi.application'
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
 DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.mysql',
+#        'NAME': 'aprinto',
+#        'USER': 'root',
+#        'PASSWORD': 'Delivery100%',
+#    },
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'aprinto',
-        'USER': 'root',
-        'PASSWORD': 'Delivery100%',
+        'USER': 'postgres',
+        'PASSWORD': '',
+        'HOST':'0.0.0.0',
+        'PORT':'8800',
     }
 }
 
