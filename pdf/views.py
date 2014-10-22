@@ -28,7 +28,10 @@ def doc_upload(request):
             doc = form.save(commit=False)
             x=request.POST.dict()
             # doc.user = request.user
-            doc.pdf_id = x['pdf_id']
+            try:
+                doc.pdf_id = x['pdf_id']
+            except:
+                doc.pdf_id = x['doc_name']
             doc.order_tag = ''.join(INCL_CHARS[randrange(0,INCL_CHARS_LEN)] for i in range(0,4))
             # doc.doc_name = x['name']
             doc.QR_url = BASE_QR_URL+doc.pdf_id
@@ -36,7 +39,7 @@ def doc_upload(request):
             #doc.user = u
             #doc.date_uploaded = datetime.utcnow()
             doc.save()
-            process_file.delay(doc)
+            #process_file.delay(doc)
             # return HttpResponseRedirect(reverse('pdf_list'))
             return HttpResponse(str({'order_tag':doc.order_tag,
                                      'QR_url':doc.QR_url}))

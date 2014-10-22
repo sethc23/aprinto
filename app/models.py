@@ -21,8 +21,6 @@ DOCUMENT_STATES = (
 DEFAULT_PATH = os_path.join(settings.MEDIA_ROOT, "uploads")
 UPLOAD_PATH = getattr(settings, "PDF_UPLOAD_PATH", DEFAULT_PATH)
 
-
-
 def path_and_rename(path):
     def wrapper(instance, filename):
         ext = filename.split('.')[-1]
@@ -45,7 +43,7 @@ class PDF(models.Model):
     application_name  = models.TextField(blank=True,null=True)
     doc_name = models.CharField(_("Title"), blank=True, null=True, max_length=100)
     local_document = models.FileField(_("Local Document"), null=True, blank=True,
-                                      upload_to=path_and_rename(UPLOAD_PATH),
+                                      upload_to=path_and_rename(settings.PDF_UPLOAD_PATH),
                                       max_length=255)
     QR_url = models.TextField(blank=True,null=True)
     html = models.TextField(blank=True,null=True)
@@ -79,7 +77,7 @@ class PDF(models.Model):
                 self.doc_name,
                 self.local_document,
                 self.QR_url,
-                self.html,
+                self.html
             ])
 
     def get_detail_url(self):

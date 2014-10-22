@@ -8,6 +8,9 @@ from app.models import PDF
 from aprinto.settings import BASE_QR_URL,INCL_CHARS,INCL_CHARS_LEN
 from random import randrange
 
+# import logging
+# logger = logging.getLogger(__name__)
+
 class PDF_ViewSet(viewsets.ModelViewSet):
     queryset = PDF.objects.all()
     serializer_class = PDF_serializer
@@ -16,11 +19,13 @@ class PDF_ViewSet(viewsets.ModelViewSet):
 def check(request):
 
     if request.method == 'GET':
+        # logger.info(request.DATA)
         x = PDF.objects.all()
         serializer = PDF_serializer(x, many=True)
         return Response(serializer.data)
 
     elif request.method == 'POST':
+        # logger.info(request.DATA)
         x = request.DATA[0]
         order_tag = ''.join(INCL_CHARS[randrange(0,INCL_CHARS_LEN)] for i in range(0,4))
         QR_url = BASE_QR_URL + x['pdf_id']

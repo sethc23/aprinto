@@ -50,9 +50,10 @@ class Document(models.Model):
     name = models.CharField(_("Title"), max_length=100)
     uuid = models.CharField(_('Unique Identifier'), max_length=36)
     local_document = models.FileField(_("Local Document"), null=True, blank=True,
-                                      upload_to=path_and_rename(UPLOAD_PATH),
+                                      upload_to=path_and_rename(settings.PDF_UPLOAD_PATH),
                                       max_length=255)
-    # local_document = models.FileField(_("Local Document"), null=True, blank=True, upload_to=UPLOAD_PATH)
+    # local_document = models.FileField(_("Local Document"), null=True, blank=True,
+    #                                   upload_to=UPLOAD_PATH, max_length=255)
     remote_document = models.URLField(_("Remote Document"), null=True, blank=True)
     status = models.CharField(_("Remote Processing Status"), default='U', max_length=1, choices=DOCUMENT_STATES)
     exception = models.TextField(_("Processing Exception"), null=True, blank=True)

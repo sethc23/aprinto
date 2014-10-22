@@ -13,11 +13,10 @@ SECRET_KEY = '%6d$oxj6)29$o$^jr)fav8j^sey-&2(gcofj*lk^j%bg#rpci)'
 DEBUG = True
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
-
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -29,10 +28,10 @@ INSTALLED_APPS = (
     'django_extensions',
     'app',
     'pdf',
-    'celery',
+    # 'celery',
     # 'ghettoq',
-    'djcelery',
-    'djcelery.transport',
+    # 'djcelery',
+    # 'djcelery.transport',
     'rest_framework',
 )
 
@@ -46,25 +45,29 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'aprinto.urls'
-
 WSGI_APPLICATION = 'aprinto.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-
 DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.mysql',
+#        'NAME': 'aprinto',
+#        'USER': 'root',
+#        'PASSWORD': 'Delivery100%',
+#    },
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'aprinto',
-        'USER': 'root',
-        'PASSWORD': 'Delivery100%',
+        'USER': 'postgres',
+        'HOST':'192.168.2.50',
+        'PORT':'8800',
+        'client_encoding': 'UTF8'
     }
 }
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
@@ -74,14 +77,12 @@ USE_TZ = False       # If you set this to False, Django will not use timezone-aw
 
 # Static files (CSS, JavaScript, Images)
 PROJECT_ROOT = os_path.dirname(os_path.dirname(__file__))
-STATIC_ROOT = os_path.join(PROJECT_ROOT, 'static/')
+STATIC_ROOT = os_path.join(PROJECT_ROOT, 'static')
 STATIC_URL = '/static/'
 
-PROJECT_ROOT = os_path.dirname(os_path.dirname(__file__))
-STATIC_ROOT = os_path.join(PROJECT_ROOT, 'static/')
-
-MEDIA_ROOT = os_path.join(PROJECT_ROOT, 'media/')
+MEDIA_ROOT = os_path.join(PROJECT_ROOT, 'media')
 MEDIA_URL = '/media/'
+PDF_UPLOAD_PATH = os_path.join(MEDIA_ROOT, 'uploads')
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -107,34 +108,84 @@ TEMPLATE_LOADERS = (
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s [%(asctime)s] %(module)s %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
     'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+            #'filename': '/Users/admin/SERVER1/run/logs/django/console.log',
+        },
+        'file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'verbose',
+            'filename': '/Users/admin/SERVER1/run/logs/django/filehandler.log',
+            'maxBytes': 1024000,
+            'backupCount': 3,
+        },
+        'sql': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'verbose',
+            'filename': '/Users/admin/SERVER1/run/logs/django/sql.log',
+            'maxBytes': 102400,
+            'backupCount': 3,
+        },
+        'commands': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'verbose',
+            'filename': '/Users/admin/SERVER1/run/logs/django/commands.log',
+            'maxBytes': 10240,
+            'backupCount': 3,
+        },
         'mail_admins': {
             'level': 'ERROR',
-            'filters': ['require_debug_false'],
+            #'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         }
     },
     'loggers': {
+       'django': {
+            'handlers': ['file', 'console','mail_admins',],
+            'propagate': True,
+            'level': 'DEBUG',
+        },
+        'django.db.backends': {
+            'handlers': ['sql', 'console'],
+            'propagate': False,
+            'level': 'WARNING',
+        },
+        'scheduling': {
+            'handlers': ['commands', 'console'],
+            'propagate': True,
+            'level': 'DEBUG',
+        },
         'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
+            'handlers': ['file', 'console', 'mail_admins',],
+            'level': 'DEBUG',
             'propagate': True,
         },
     }
 }
 
 # pdf app settings
-PDF_UPLOAD_BUCKET = os_path.join(PROJECT_ROOT, 'uploads/')       # Where the documents should be uploaded to
-PDF_AWS_KEY = 'AKIAIW4C3IJB7JJ6WMKQ'             # AWS Key for accessing Bootstrap Bucket and Queues
-PDF_AWS_SECRET = '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'          # AWS Secret Key for accessing Bootstrap Bucket and Queues
-
-CARROT_BACKEND = "ghettoq.taproot.Database"
-CELERY_RESULT_BACKEND = "amqp"
+# PDF_UPLOAD_BUCKET = os_path.join(PROJECT_ROOT, 'uploads/')       # Where the documents should be uploaded to
+# PDF_AWS_KEY = 'AKIAIW4C3IJB7JJ6WMKQ'             # AWS Key for accessing Bootstrap Bucket and Queues
+# PDF_AWS_SECRET = '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'          # AWS Secret Key for accessing Bootstrap Bucket and Queues
+#
+# CARROT_BACKEND = "ghettoq.taproot.Database"
+# CELERY_RESULT_BACKEND = "amqp"
 
 REST_FRAMEWORK = {
     # Use hyperlinked styles by default.
