@@ -1,8 +1,16 @@
+from sys import argv
 import json
 from urllib2 import urlopen,Request
 from poster.encode import multipart_encode
 from poster.streaminghttp import register_openers
 from uuid import uuid4 as get_guid
+from datetime import datetime as DT
+from uuid import getnode as get_mac
+
+macs = {'Macbook':'105773427819682',
+        'MacBookPro':'117637351435',}
+
+this_mac = str(get_mac())
 
 def post_json(all_data,p_url,show_post=False,show_resp=False):
 
@@ -25,7 +33,7 @@ def post_json(all_data,p_url,show_post=False,show_resp=False):
     return response
 
 def check(post_action='',show_post=False,show_resp=False):
-    p_url = BASE_PRINTER_URL+'api/check/'
+    p_url = BASE_URL+'/api/check/'
     print '\n\t\tTEST: check',post_action,'\n\t\t\tURL:',p_url
     guid = str(get_guid())
     data = [{
@@ -68,18 +76,34 @@ def upload_pdf(guid,uploadfile,upload_file_url,show_post=False,show_resp=False):
     print '\n\t\t\t--> SUCCESS\n'
     return
 
+if __name__ == '__main__':
+    try:
+        test_server = argv[1]
+    except:
+        # test_server = 'dj_dev'
+        test_server = 'local'
+        # test_server = 'ec2'
 
-# BASE_PRINTER_URL = 'http://printer.aporodelivery.com/'
-BASE_PRINTER_URL = 'http://0.0.0.0:8080/'
+    THE_PAST = DT(2014,1,2,12,30,0).isoformat()
 
-print '\n\tTesting...\n'
-print '\tBase URL:',BASE_PRINTER_URL,'\n'
+    SERVERS = {'dev'    :   'http://0.0.0.0:8080',
+               'local'  :   'http://0.0.0.0',
+               'ec2'    :   'http://54.191.47.76',
+               'ec3'    :   'http://54.186.48.182',
+               'printer':   'http://printer.aporodelivery.com',
+               'app'    :   'http://app.aporodelivery.com',}
 
-guid = check(post_action='',show_post=True,show_resp=True)
+    BASE_URL = SERVERS[test_server]
 
-uploadfile='/Users/sethchase/Desktop/test.pdf'
-upload_file_url=BASE_PRINTER_URL
-upload_pdf(guid,uploadfile,upload_file_url,show_post=True,show_resp=True)
+    print '\n\tTesting "'+test_server+'"...\n'
+    print '\tBase URL:',BASE_URL,'\n'
 
-print '\n\tTesting COMPLETE\n'
+    guid = check(post_action='',show_post=True,show_resp=True)
+    if this_mac == macs['Macbook']: uploadfile='/Users/sethchase/Desktop/test.pdf'
+    if this_mac == macs['MacBookPro']: uploadfile='/Users/admin/Desktop/test.pdf'
+
+    upload_file_url=BASE_URL
+    upload_pdf(guid,uploadfile,upload_file_url,show_post=True,show_resp=True)
+
+    print '\n\tTesting COMPLETE\n'
 

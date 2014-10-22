@@ -22,7 +22,7 @@ os_system('ENV/bin/python manage.py runserver 0.0.0.0:8080 &')
 delay(6)
 
 # os_system('ENV/bin/python management/initialize.py')
-os_system('ENV/bin/python management/tests.py')                         # Run Tests
+os_system('ENV/bin/python management/tests.py "dev"')                         # Run Tests
 
 os_system('pkill -f "python manage.py runserver"')
 

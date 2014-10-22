@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from serializers import PDF_serializer
+from serializers import Initial_PDF_serializer,PDF_serializer
 from app.models import PDF
 from aprinto.settings import BASE_QR_URL,INCL_CHARS,INCL_CHARS_LEN
 from random import randrange
@@ -35,11 +35,9 @@ def check(request):
                     'qr_code_x' : 5,
                     'qr_code_y': 1,
                     'qr_code_scale': .5,        # .5 == 50%
-                    'tag_x' : 5,
-                    'tag_y': 1,
-                    'tag_scale': .5}            # .5 == 50%
+                }            # .5 == 50%
         x.update(**output)
-        serializer = PDF_serializer(data=x,context={'request': request}) # NOTE:  only 1 data pt here
+        serializer = Initial_PDF_serializer(data=x)#,context={'request': request}) # NOTE:  only 1 data pt here
         if serializer.is_valid():
             c = serializer.save()
             return Response(output, status=status.HTTP_201_CREATED)
