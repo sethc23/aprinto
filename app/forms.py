@@ -18,7 +18,7 @@ class DocumentField(forms.FileField):
     def clean(self, data, initial=None):
         f = super(DocumentField, self).clean(data, initial)
         ext = os.path.splitext(f.name)[1][1:].lower()
-        if ext == 'pdf' and f.content_type == 'application/pdf':
+        if ext == 'pdf':# and f.content_type == 'application/pdf':
             return f
         raise DocumentValidationError()
 
