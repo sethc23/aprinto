@@ -17,10 +17,6 @@ DOCUMENT_STATES = (
     ('F', _('Finished')),
     ('E', _('Processing Error')))
 
-
-DEFAULT_PATH = os_path.join(settings.MEDIA_ROOT, "uploads")
-UPLOAD_PATH = getattr(settings, "PDF_UPLOAD_PATH", DEFAULT_PATH)
-
 def path_and_rename(path):
     def wrapper(instance, filename):
         ext = filename.split('.')[-1]
