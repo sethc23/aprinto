@@ -82,7 +82,7 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = os_path.join(PROJECT_ROOT, 'media')
 MEDIA_URL = '/media/'
-PDF_UPLOAD_PATH = os_path.join(MEDIA_ROOT, 'uploads')
+PDF_UPLOAD_PATH = os_path.join(PROJECT_ROOT, 'uploads')
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
