@@ -7,7 +7,7 @@ class PDF_serializer(serializers.HyperlinkedModelSerializer):
         model = PDF
         fields = ['pdf_id', 'created', 'order_tag','printer_id', 'machine_id', 'application_name',
                   'doc_name', 'local_document', 'qr_url', 'html',
-                  'remote_document', 'status', 'exception', 'pages', 'page_html',
+                  'remote_document', 'status', 'processing_exception', 'pages', 'page_html',
                   'date_uploaded', 'date_stored', 'date_queued',
                   'date_process_start', 'date_process_end', 'date_exception']
 
