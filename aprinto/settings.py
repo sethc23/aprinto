@@ -60,7 +60,7 @@ DATABASES = {
     'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'aprinto',
         'USER': 'postgres',
-        'HOST': '192.168.2.50',
+        'HOST': '192.168.2.52',
         'PORT': '8800',
         'client_encoding': 'UTF8'
     }

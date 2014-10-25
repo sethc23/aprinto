@@ -41,12 +41,20 @@ class PDF(models.Model):
     local_document = models.FileField(_("Local Document"), null=True, blank=True,
                                       upload_to=path_and_rename(settings.PDF_UPLOAD_PATH),
                                       max_length=255)
-    QR_url = models.TextField(blank=True,null=True)
+    qr_url = models.TextField(blank=True,null=True)
     html = models.TextField(blank=True,null=True)
+
+    vendor_id = models.IntegerField(blank=True,null=True)
+    cust_name = models.TextField(blank=True,null=True)
+    cust_tel = models.TextField(blank=True,null=True)
+    cust_addr = models.TextField(blank=True,null=True)
+    cust_cross_st = models.TextField(blank=True,null=True)
+    order_price = models.FloatField(blank=True,null=True)
+    order_tip = models.FloatField(blank=True,null=True)
 
     remote_document = models.URLField(_("Remote Document"), null=True, blank=True)
     status = models.CharField(_("Remote Processing Status"), default='U', max_length=1, choices=DOCUMENT_STATES)
-    exception = models.TextField(_("Processing Exception"), null=True, blank=True)
+    processing_exception = models.TextField(_("Processing Exception"), null=True, blank=True)
     pages = models.IntegerField(_("Number of Pages in Document"), null=True, blank=True)
 
     page_html = models.TextField(null=True, blank=True)
@@ -81,3 +89,11 @@ class PDF(models.Model):
 
     def save(self, **kwargs):
         super(PDF, self).save(**kwargs)
+
+class vendor(models.Model):
+    vendor_id = models.AutoField(max_length=11, primary_key=True)
+    created = models.DateTimeField(auto_now=True)
+    machine_id = models.TextField(blank=True,null=True)
+    biz_name = models.TextField(blank=True,null=True)
+    addr = models.TextField(blank=True,null=True)
+    recipient_emails = models.TextField(blank=True,null=True)
