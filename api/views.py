@@ -32,18 +32,12 @@ def check(request):
                     'doc_post_url': 'http://printer.aporodelivery.com',
                     'qr_code_x' : 5,
                     'qr_code_y': 1,
-<<<<<<< HEAD
                     'qr_code_scale': 0.001,        # .5 == 50%# .5 == 50%
                     'tag_x' : 5,
                     'tag_y': 1,
                     'tag_scale': 0.001,            # .5 == 50%
-=======
-                    'qr_code_scale': 0,        # .5 == 50%# .5 == 50%
-                    'tag_x' : 5,
-                    'tag_y': 1,
-                    'tag_scale': 0,            # .5 == 50%
->>>>>>> origin/master
                 }
+
         x.update(**output)
         serializer = PDF_serializer(data=x,context={'request': request}) # NOTE:  only 1 data pt here
         if serializer.is_valid():
