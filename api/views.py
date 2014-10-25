@@ -26,9 +26,9 @@ def check(request):
     elif request.method == 'POST':
         x = request.DATA[0]
         order_tag = ''.join(INCL_CHARS[randrange(0,INCL_CHARS_LEN)] for i in range(0,4))
-        QR_url = BASE_QR_URL + x['pdf_id']
+        qr_url = BASE_QR_URL + x['pdf_id']
         output = {  'order_tag'   :   order_tag,
-                    'QR_url'      :   QR_url,
+                    'qr_url'      :   qr_url,
                     'doc_post_url': 'http://printer.aporodelivery.com',
                     'qr_code_x' : 5,
                     'qr_code_y': 1,
@@ -59,7 +59,7 @@ def doc_upload(request):
         if form.is_valid():
             form.save(commit=True)
             return HttpResponse(str({'order_tag':doc.order_tag,
-                                     'QR_url':doc.QR_url}))
+                                     'qr_url':doc.qr_url}))
     else:
         form = PDF_Form()
     return render_to_response('pdf/upload.html', {'form': form}, context_instance=RequestContext(request))

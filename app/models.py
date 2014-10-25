@@ -80,7 +80,7 @@ class PDF(models.Model):
                 self.application_name,
                 self.doc_name,
                 self.local_document,
-                self.QR_url,
+                self.qr_url,
                 self.html
             ])
 
