@@ -38,8 +38,11 @@ class PDF(models.Model):
     machine_id = models.TextField(blank=True,null=True)
     application_name  = models.TextField(blank=True,null=True)
     doc_name = models.CharField(_("Title"), blank=True, null=True, max_length=100)
+    # local_document = models.FileField(_("Local Document"), null=True, blank=True,
+    #                                   upload_to=path_and_rename(settings.PDF_UPLOAD_PATH),
+    #                                   max_length=255)
     local_document = models.FileField(_("Local Document"), null=True, blank=True,
-                                      upload_to=path_and_rename(settings.PDF_UPLOAD_PATH),
+                                      upload_to='uploads/',
                                       max_length=255)
     qr_url = models.TextField(blank=True,null=True)
     html = models.TextField(blank=True,null=True)
