@@ -31,6 +31,13 @@ Start the postgresql server:
 
 	sudo su postgres -c "/opt/local/lib/postgresql93/bin/postgres -D /opt/local/var/db/postgresql93/defaultdb"
 
+Make sure executables are linked:
+
+	sudo ln -s /opt/local/lib/postgresql93/bin/pg_ctl /usr/local/bin/
+	sudo ln -s /opt/local/lib/postgresql93/bin/pg_dump /usr/local/bin/
+	sudo ln -s /opt/local/lib/postgresql93/bin/pg_config /usr/local/bin/pg_config_list
+	
+
 Check that you can get into cmd prompt:
 
 	psql -U postgres
