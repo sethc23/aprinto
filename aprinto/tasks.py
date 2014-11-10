@@ -106,12 +106,11 @@ def read_xml_and_update_db(doc,f_pdf,f_xml):
     return True
 @shared_task
 def extract_text(doc,f_pdf):
-    os_cmd('pdftohtml -i -c -xml '+f_pdf)
+    f_xml = f_pdf.replace('.pdf','.xml')
+    os_cmd('/opt/local/bin/pdftohtml -i -c -xml '+f_pdf+' '+f_xml)
     doc.status = 'X'
     doc.date_extracted = dt.utcnow()
     doc.save()
-
-    f_xml = f_pdf.replace('.pdf','.xml')
     read_xml_and_update_db.delay(doc,f_pdf,f_xml)
 
     return True

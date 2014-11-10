@@ -178,7 +178,7 @@ LOGGING = {
 BROKER_URL = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json','pickle']
 CELERY_TASK_SERIALIZER = 'pickle'
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'pickle'
 
 REST_FRAMEWORK = {
     # Use hyperlinked styles by default.
