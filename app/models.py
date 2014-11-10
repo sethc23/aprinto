@@ -1,7 +1,7 @@
 
 from django.db import models
 
-from django.conf import settings
+# from django.conf import settings
 from os import path as os_path
 
 from uuid import uuid4
@@ -44,48 +44,49 @@ class PDF(models.Model):
     local_document = models.FileField(_("Local Document"), null=True, blank=True,
                                       upload_to='uploads/',
                                       max_length=255)
-    qr_url = models.TextField(blank=True,null=True)
-    html = models.TextField(blank=True,null=True)
+    qr_url          = models.TextField(blank=True,null=True)
+    doc_as_xml      = models.TextField(blank=True,null=True)
 
-    vendor_id = models.IntegerField(blank=True,null=True)
-    cust_name = models.TextField(blank=True,null=True)
-    cust_tel = models.TextField(blank=True,null=True)
-    cust_addr = models.TextField(blank=True,null=True)
-    cust_cross_st = models.TextField(blank=True,null=True)
-    order_price = models.FloatField(blank=True,null=True)
-    order_tip = models.FloatField(blank=True,null=True)
+    vendor_id       = models.IntegerField(blank=True,null=True)
+    cust_name       = models.TextField(blank=True,null=True)
+    cust_tel        = models.TextField(blank=True,null=True)
+    cust_addr       = models.TextField(blank=True,null=True)
+    cust_cross_st   = models.TextField(blank=True,null=True)
+    order_price     = models.FloatField(blank=True,null=True)
+    order_tip       = models.FloatField(blank=True,null=True)
 
     remote_document = models.URLField(_("Remote Document"), null=True, blank=True)
-    status = models.CharField(_("Remote Processing Status"), default='U', max_length=1, choices=DOCUMENT_STATES)
+    status          = models.CharField(_("Remote Processing Status"), default='U', max_length=1, choices=DOCUMENT_STATES)
     processing_exception = models.TextField(_("Processing Exception"), null=True, blank=True)
-    pages = models.IntegerField(_("Number of Pages in Document"), null=True, blank=True)
+    #pages           = models.IntegerField(_("Number of Pages in Document"), null=True, blank=True)
 
-    page_html = models.TextField(null=True, blank=True)
+    # page_html = models.TextField(null=True, blank=True)
 
-    date_uploaded = models.DateTimeField(_("Date Uploaded"),auto_now=True)
-    date_stored = models.DateTimeField(_("Date Stored Remotely"), null=True, blank=True)
-    date_queued = models.DateTimeField(_("Date Queued"), null=True, blank=True)
-    date_process_start = models.DateTimeField(_("Date Process Started"), null=True, blank=True)
-    date_process_end = models.DateTimeField(_("Date Process Completed"), null=True, blank=True)
-    date_exception = models.DateTimeField(_("Date of Exception"), null=True, blank=True)
+    date_uploaded   = models.DateTimeField(_("Date Uploaded"),auto_now=True)
+    date_queued     = models.DateTimeField(_("Date Queued"), null=True, blank=True)
+    date_extracted  = models.DateTimeField(_("Date Extracted"), null=True, blank=True)
+    date_xml_saved  = models.DateTimeField(_("Date XML Saved"), null=True, blank=True)
+    date_order_fwd_gg = models.DateTimeField(_("Date Order Forwarded"), null=True, blank=True)
+    date_completed  = models.DateTimeField(_("Date Processing Completed"), null=True, blank=True)
+    date_exception  = models.DateTimeField(_("Date of Exception"), null=True, blank=True)
 
     class Meta:
         verbose_name = _('document')
         verbose_name_plural = _('documents')
 
     def __unicode__(self):
-        return ' '.join([
-                self.pdf_id,
-                self.created,
-                self.order_tag,
-                self.printer_id,
-                self.machine_id,
-                self.application_name,
-                self.doc_name,
-                self.local_document,
-                self.qr_url,
-                self.html
-            ])
+        value_list = [  self.pdf_id,
+                        self.created,
+                        self.order_tag,
+                        self.printer_id,
+                        self.machine_id,
+                        self.application_name,
+                        self.doc_name,
+                        self.local_document,
+                        self.qr_url,
+                        self.doc_as_xml ]
+        return ','.join(str(v) for v in value_list)
+        # return ' '.join(value_list)
 
     def get_detail_url(self):
         return reverse("pdf_detail", kwargs={'pdf_id': self.pdf_id})

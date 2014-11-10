@@ -42,6 +42,16 @@ Check that you can get into cmd prompt:
 
 	psql -U postgres
 
+#### Extensions:
+
+	cd ~/SERVER3/pgsql93/pagc-code-361-branches-sew-refactor2/postgresql
+	sudo ln -s /opt/local/lib/postgresql93/bin/pg_config /usr/local/bin/
+	make
+	sudo make install
+	pg_stop / pg_start
+	
+	ALTER DATABASE routing SET search_path=public, tiger;
+
 #Loading Data
 
 ####IMPORTANT CONSIDERATIONS:

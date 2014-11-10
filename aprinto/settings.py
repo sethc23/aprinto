@@ -27,11 +27,12 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_extensions',
     'app',
-    'pdf',
-    # 'celery',
+    # 'pdf',
+    'aprinto',
     # 'ghettoq',
     # 'djcelery',
     # 'djcelery.transport',
+    # 'kombu',
     'rest_framework',
 )
 
@@ -50,17 +51,11 @@ WSGI_APPLICATION = 'aprinto.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.mysql',
-#        'NAME': 'aprinto',
-#        'USER': 'root',
-#        'PASSWORD': 'Delivery100%',
-#    },
     'default': {
     'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'aprinto',
         'USER': 'postgres',
-        'HOST': '192.168.2.52',
+        'HOST': '192.168.3.52',
         'PORT': '8800',
         'client_encoding': 'UTF8'
     }
@@ -179,13 +174,11 @@ LOGGING = {
     }
 }
 
-# pdf app settings
-# PDF_UPLOAD_BUCKET = os_path.join(PROJECT_ROOT, 'uploads/')       # Where the documents should be uploaded to
-# PDF_AWS_KEY = 'AKIAIW4C3IJB7JJ6WMKQ'             # AWS Key for accessing Bootstrap Bucket and Queues
-# PDF_AWS_SECRET = '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'          # AWS Secret Key for accessing Bootstrap Bucket and Queues
-#
-# CARROT_BACKEND = "ghettoq.taproot.Database"
-# CELERY_RESULT_BACKEND = "amqp"
+# REDIS/CELERY SETTINGS
+BROKER_URL = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json','pickle']
+CELERY_TASK_SERIALIZER = 'pickle'
+CELERY_RESULT_SERIALIZER = 'json'
 
 REST_FRAMEWORK = {
     # Use hyperlinked styles by default.

@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from serializers import PDF_serializer
 from app.models import PDF
+from aprinto.tasks import process_file
 from aprinto.settings import BASE_QR_URL,INCL_CHARS,INCL_CHARS_LEN
 from random import randrange
 
@@ -53,11 +54,12 @@ from django.template import RequestContext
 @api_view(['GET', 'POST'])
 def doc_upload(request):
     if request.method == 'POST':
-        x=request.POST.dict()
+        x = request.POST.dict()
         doc = PDF.objects.get(pdf_id=x['pdf_id'])
         form = PDF_Form(request.DATA, request.FILES,instance=doc)
         if form.is_valid():
             form.save(commit=True)
+            process_file.delay(doc)
             return HttpResponse(str({'order_tag':doc.order_tag,
                                      'qr_url':doc.qr_url}))
     else:
