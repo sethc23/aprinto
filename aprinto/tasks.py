@@ -9,6 +9,7 @@ from celery import shared_task
 #from celery.decorators import task
 #from celery.task import PeriodicTask
 #from pdf.models import Document
+from aprinto.settings import FWD_ORDER
 import requests
 from json import dumps as j_dumps
 from app.models import vendor
@@ -89,7 +90,8 @@ def parse_xml_and_update_db(doc,f_pdf,f_xml):
     doc.date_xml_parsed = dt.utcnow()
     doc.save()
 
-    fwd_order_to_gnamgnam.delay(doc,f_pdf,f_xml)
+    if FWD_ORDER:   fwd_order_to_gnamgnam.delay(doc,f_pdf,f_xml)
+    else:           cleanup_uploads.delay(doc,f_pdf,f_xml)
 
     return True
 @shared_task
@@ -107,7 +109,7 @@ def read_xml_and_update_db(doc,f_pdf,f_xml):
 @shared_task
 def extract_text(doc,f_pdf):
     f_xml = f_pdf.replace('.pdf','.xml')
-    os_cmd('/opt/local/bin/pdftohtml -i -c -xml '+f_pdf+' '+f_xml)
+    os_cmd('/usr/bin/pdftohtml -i -c -xml '+f_pdf+' '+f_xml)
     doc.status = 'X'
     doc.date_extracted = dt.utcnow()
     doc.save()

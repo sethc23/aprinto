@@ -1,4 +1,20 @@
 from os import path as os_path
+from uuid import getnode as get_mac
+
+macs = {'Macbook':'105773427819682',
+        'MacBookPro':'117637351435',
+        'MBP2':'220083054034723'}
+
+this_mac = get_mac()
+if str(this_mac)==macs['MBP2']:
+    LOG_DIR = '/Users/admin/SERVER3'
+    DB_HOST = '192.168.3.52'
+    DB_PORT = '8800'
+else:
+    LOG_DIR = '/home/ec2-user/SERVER4'
+    DB_HOST = '0.0.0.0'
+    DB_PORT = '8800'
+
 BASE_DIR = os_path.dirname(os_path.dirname(__file__))
 BASE_APP_URL = 'http://app.aporodelivery.com/'
 BASE_PRINTER_URL = 'http://printer.aporodelivery.com/'
@@ -6,6 +22,7 @@ BASE_QR_URL = BASE_APP_URL + 'qr/'
 # INCL_CHARS = set('ACEFGHJKLNPSTXZ347')
 INCL_CHARS = 'ACEFGHJKLNPSTXZ347'
 INCL_CHARS_LEN = len(INCL_CHARS)
+FWD_ORDER = False
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '%6d$oxj6)29$o$^jr)fav8j^sey-&2(gcofj*lk^j%bg#rpci)'
 
@@ -55,8 +72,8 @@ DATABASES = {
     'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'aprinto',
         'USER': 'postgres',
-        'HOST': '192.168.3.52',
-        'PORT': '8800',
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
         'client_encoding': 'UTF8'
     }
 }
@@ -121,26 +138,26 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
-            #'filename': '/Users/admin/SERVER3/run/logs/django/console.log',
+            #'filename': LOG_DIR + '/run/logs/django/console.log',
         },
         'file': {
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'verbose',
-            'filename': '/Users/admin/SERVER3/run/logs/django/filehandler.log',
+            'filename': LOG_DIR + '/run/logs/django/filehandler.log',
             'maxBytes': 1024000,
             'backupCount': 3,
         },
         'sql': {
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'verbose',
-            'filename': '/Users/admin/SERVER3/run/logs/django/sql.log',
+            'filename': LOG_DIR + '/run/logs/django/sql.log',
             'maxBytes': 102400,
             'backupCount': 3,
         },
         'commands': {
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'verbose',
-            'filename': '/Users/admin/SERVER3/run/logs/django/commands.log',
+            'filename': LOG_DIR + '/run/logs/django/commands.log',
             'maxBytes': 10240,
             'backupCount': 3,
         },

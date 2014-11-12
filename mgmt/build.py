@@ -5,7 +5,8 @@ from time import sleep as delay
 from uuid import getnode as get_mac
 
 macs = {'Macbook':'105773427819682',
-        'MacBookPro':'117637351435',}
+        'MacBookPro':'117637351435',
+        'MBP2':'220083054034723'}
 
 this_mac = get_mac()
 if str(this_mac)==macs['Macbook']:   #   MB
