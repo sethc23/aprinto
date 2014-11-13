@@ -42,8 +42,7 @@ def parse_order(xml):
     pass
 
 @shared_task
-def cleanup_uploads(doc,f_pdf,f_xml,new_folder='processed',end_status='C'):
-    os_cmd('rm '+f_xml)
+def cleanup_uploads(doc,f_pdf,new_folder='processed',end_status='C'):
     new_file_name       = doc.order_tag+'_'+doc.pdf_id+'.pdf'
     new_f_pdf           = os_path.dirname(os_path.dirname(f_pdf))+'/'+new_folder+'/'+new_file_name
     os_cmd('mv '+f_pdf+' '+new_f_pdf)
@@ -53,7 +52,7 @@ def cleanup_uploads(doc,f_pdf,f_xml,new_folder='processed',end_status='C'):
     doc.save()
     return True
 @shared_task
-def fwd_order_to_gnamgnam(doc,vend,f_pdf,f_xml):
+def fwd_order_to_gnamgnam(doc,vend,f_pdf):
     user_id         = '544963fce4b00f942bc97027'
     satellite_id    = '544963fce4b00f942bc9702e'
 
@@ -86,7 +85,7 @@ def fwd_order_to_gnamgnam(doc,vend,f_pdf,f_xml):
         doc.status = 'F'
         doc.date_order_fwd_gg = dt.utcnow()
         doc.save()
-        cleanup_uploads.delay(doc,f_pdf,f_xml)
+        cleanup_uploads.delay(doc,f_pdf)
         return True
 
     else:
@@ -97,7 +96,7 @@ def fwd_order_to_gnamgnam(doc,vend,f_pdf,f_xml):
         doc.save()
         return False
 @shared_task
-def read_order_into_db(doc,f_pdf,f_xml):
+def read_order_into_db(doc,f_pdf):
 
     #doc = parse_order(doc.doc_as_xml)
 
@@ -118,20 +117,22 @@ def read_order_into_db(doc,f_pdf,f_xml):
     doc.date_xml_parsed = dt.utcnow()
     doc.save()
 
-    if FWD_ORDER:   fwd_order_to_gnamgnam.delay(doc,v,f_pdf,f_xml)
-    else:           cleanup_uploads.delay(doc,f_pdf,f_xml)
+    if FWD_ORDER:   fwd_order_to_gnamgnam.delay(doc,v,f_pdf)
+    else:           cleanup_uploads.delay(doc,f_pdf)
 
     return True
 @shared_task
-def read_xml_into_db(doc,f_pdf,f_xml,cred):
+def read_xml_into_db(doc,f_pdf,cred):
+    f_xml = f_pdf.replace('.pdf','.xml')
     f = open(f_xml,'r')
     doc.doc_as_xml = f.read()
     f.close()
     doc.status = 'S'
     doc.date_xml_saved = dt.utcnow()
     doc.save()
+    os_cmd('rm '+f_xml)
 
-    if cred=='vendor':  read_order_into_db.delay(doc,f_pdf,f_xml)
+    if cred=='vendor':  read_order_into_db.delay(doc,f_pdf)
     elif cred=='admin': admin_req.delay(doc,f_pdf)
 
     return True
@@ -142,7 +143,7 @@ def extract_text(doc,f_pdf,cred='credentials'):
     doc.status = 'X'
     doc.date_extracted = dt.utcnow()
     doc.save()
-    read_xml_into_db.delay(doc,f_pdf,f_xml,cred)
+    read_xml_into_db.delay(doc,f_pdf,cred)
     return True
 @shared_task
 def add_new_vendor_info(doc,f_pdf,g='Parsed PDF'):
@@ -158,9 +159,9 @@ def add_new_vendor_info(doc,f_pdf,g='Parsed PDF'):
         v.save()
         doc.vendor_id = v.vendor_id
         doc.status      = 'NV'
-        cleanup_uploads(doc,f_pdf,f_pdf.replace('.pdf','.xml'),new_folder='contracts')
+        cleanup_uploads(doc,f_pdf,new_folder='contracts',end_status='NV')
     else:
-        cleanup_uploads(doc,f_pdf,f_pdf.replace('.pdf','.xml'),new_folder='to_review',end_status='AR')
+        cleanup_uploads(doc,f_pdf,new_folder='to_review',end_status='AR')
     doc.save()
     return True
 @shared_task
@@ -174,7 +175,8 @@ def admin_req(doc,f_pdf):
 @shared_task
 def unknown_req(doc,f_pdf):
     # TODO: aprinto/tasks   add function for handling UNKNOWN requests
-    pass
+    cleanup_uploads(doc,f_pdf,new_folder='unknown',end_status='UKN')
+    return True
 @shared_task
 def queue_file(doc):
     """
@@ -208,7 +210,7 @@ def queue_file(doc):
 
     return True
 
-# TODO: aprinto/tasks   add periodic function to clean up uploads and notify by email
+# TODO: aprinto/tasks   add periodic function to clean up uploads (add email notification)
 
 # class CheckResponseQueueTask(PeriodicTask):
 #     """

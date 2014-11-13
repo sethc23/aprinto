@@ -19,7 +19,8 @@ DOCUMENT_STATES = (
     ('E', _('Processing Error')),
     ('C', _('Processing Complete')),
     ('AR', _('Admin Request')),
-    ('NV',_('New Vendor Added')))
+    ('NV',_('New Vendor Added')),
+    ('UKN',_('Unknown Sources')))
 
 
 def path_and_rename(path):
@@ -61,7 +62,7 @@ class PDF(models.Model):
     order_tip       = models.FloatField(blank=True,null=True)
 
     remote_document = models.URLField(_("Remote Document"), null=True, blank=True)
-    status          = models.CharField(_("Remote Processing Status"), default='U', max_length=2, choices=DOCUMENT_STATES)
+    status          = models.CharField(_("Remote Processing Status"), default='U', max_length=3, choices=DOCUMENT_STATES)
     processing_exception = models.TextField(_("Processing Exception"), null=True, blank=True)
     #pages           = models.IntegerField(_("Number of Pages in Document"), null=True, blank=True)
 
