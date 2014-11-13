@@ -21,8 +21,8 @@ reload(sys)
 sys.setdefaultencoding('UTF8')
 
 
-def parse_xml(pdf_contents):
-    x = soup(codecs_encode(pdf_contents,'utf8','ignore')).findAll('page')
+def parse_xml(pdf):
+    x = soup(codecs_encode(pdf,'utf8','ignore')).findAll('page')
     cols = ['page','font','top','left','width','height','text']
     g = pd_DataFrame(columns=cols)
     for pg in x:
@@ -38,7 +38,8 @@ def parse_xml(pdf_contents):
             if text_contents.strip() != '':
                 g = g.append(dict(zip(a,b)),ignore_index=True)
     return g
-
+def parse_order(xml):
+    pass
 
 @shared_task
 def cleanup_uploads(doc,f_pdf,f_xml,new_folder='processed',end_status='C'):
@@ -52,7 +53,7 @@ def cleanup_uploads(doc,f_pdf,f_xml,new_folder='processed',end_status='C'):
     doc.save()
     return True
 @shared_task
-def fwd_order_to_gnamgnam(doc,f_pdf,f_xml):
+def fwd_order_to_gnamgnam(doc,vend,f_pdf,f_xml):
     user_id         = '544963fce4b00f942bc97027'
     satellite_id    = '544963fce4b00f942bc9702e'
 
@@ -96,11 +97,11 @@ def fwd_order_to_gnamgnam(doc,f_pdf,f_xml):
         doc.save()
         return False
 @shared_task
-def parse_xml_and_update_db(doc,f_pdf,f_xml):
+def read_order_into_db(doc,f_pdf,f_xml):
 
-    # SET CUSTOMER NAME TO: doc.application_name+': ' + doc first line
+    #doc = parse_order(doc.doc_as_xml)
 
-    # sample data:
+    ### -->>  SAMPLE DATA:
     doc.vendor_id       = 1
     doc.cust_name       = doc.application_name
     doc.cust_tel        = '555-555-5555'
@@ -108,13 +109,16 @@ def parse_xml_and_update_db(doc,f_pdf,f_xml):
     doc.cust_cross_st   = '30th & Madison.'
     doc.order_price     = 20.00
     doc.order_tip       = 5.00
+    ### <<--
+
+    v = vendor.objects.get(vendor_id=doc.vendor_id)
 
 
     doc.status = 'P'
     doc.date_xml_parsed = dt.utcnow()
     doc.save()
 
-    if FWD_ORDER:   fwd_order_to_gnamgnam.delay(doc,f_pdf,f_xml)
+    if FWD_ORDER:   fwd_order_to_gnamgnam.delay(doc,v,f_pdf,f_xml)
     else:           cleanup_uploads.delay(doc,f_pdf,f_xml)
 
     return True
@@ -127,7 +131,7 @@ def read_xml_into_db(doc,f_pdf,f_xml,cred):
     doc.date_xml_saved = dt.utcnow()
     doc.save()
 
-    if cred=='vendor':  parse_xml_and_update_db.delay(doc,f_pdf,f_xml)
+    if cred=='vendor':  read_order_into_db.delay(doc,f_pdf,f_xml)
     elif cred=='admin': admin_req.delay(doc,f_pdf)
 
     return True
@@ -161,29 +165,34 @@ def add_new_vendor_info(doc,f_pdf,g='Parsed PDF'):
     return True
 @shared_task
 def admin_req(doc,f_pdf):
-    g                   = parse_xml(doc.doc_as_xml)
-    chk_trial_period    = g.sort('top').text.str.contains('SERVICE AGREEMENT').tolist().count(True)!=0
-    if chk_trial_period:  add_new_vendor_info.delay(doc,f_pdf,g)
-    doc.status = 'AR'
+    g               = parse_xml(doc.doc_as_xml)
+    trial_k         = g.sort('top').text.str.contains(r'SERVICE AGREEMENT.*Trial Period').tolist().count(True)!=0
+    if trial_k:     add_new_vendor_info.delay(doc,f_pdf,g)
+    doc.status      = 'AR'
     doc.save()
     return True
-
 @shared_task
 def unknown_req(doc,f_pdf):
+    # TODO: aprinto/tasks   add function for handling UNKNOWN requests
     pass
-
 @shared_task
 def queue_file(doc):
     """
     Vendor PDF Workflow:                         Document State:
-        .. (file previously uploaded)                   U
+        .. (default state on upload)                    U
         1. add doc to queue for processing          --> Q
-        1. generate XML from PDF,                   --> X
-        2. save XML contents to DB                  --> S
-        3. parse contents and update DB             --> P
-        4. forward order to gnamgnam                --> F
-        5. [ if exception/error ... ]               --> E
-        6. [ if completed ... ]                     --> C
+        2. generate XML from PDF,                   --> X
+        3. save XML contents to DB                  --> S
+        4. parse contents and update DB             --> P
+        5. forward order to gnamgnam                --> F
+        6. [ if exception/error ... ]               --> E
+        7. [ if completed ... ]                     --> C
+
+    Admin Workflow:                          Document State:
+        .. (default state on upload)                    U
+        1. request directed to admin                --> AR
+        2. new vendor added                         --> NV
+
     """
     f_pdf = doc.local_document.path
     doc.status = 'Q'
@@ -199,6 +208,7 @@ def queue_file(doc):
 
     return True
 
+# TODO: aprinto/tasks   add periodic function to clean up uploads and notify by email
 
 # class CheckResponseQueueTask(PeriodicTask):
 #     """
