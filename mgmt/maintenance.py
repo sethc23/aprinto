@@ -8,7 +8,7 @@ def update_contracts_by_vendor(request): # TODO NEW TASK for celery
     from datetime import timedelta
     from aporo.settings import DAYS_SCHEDULED_AHEAD,DG_K_PERIOD,UTC_OFFSET_hr
     from django.db.models import F
-    from app.models import Vendor,Contract
+    from aporo.models import Vendor,Contract
     """
     Starting with Active Vendors with StartDate equal to or less than today,
     of all Vendor_Sched where last_processed is blank,

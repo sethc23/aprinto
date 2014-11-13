@@ -1,30 +1,54 @@
 from __future__ import absolute_import
 from os import system as os_cmd
 from os import path as os_path
-from datetime import timedelta
 from datetime import datetime as dt
 from celery import shared_task
-#from uuid import uuid4
-#from django.conf import settings
-#from celery.decorators import task
-#from celery.task import PeriodicTask
-#from pdf.models import Document
 from aprinto.settings import FWD_ORDER
 import requests
 from json import dumps as j_dumps
-from app.models import vendor
+from aprinto.models import vendor,admin
+from bs4 import BeautifulSoup as soup
+from re import findall as re_findall
+from re import sub as re_sub
+from pandas import DataFrame as pd_DataFrame
+from sqlalchemy import create_engine
+engine = create_engine(r'postgresql://postgres:postgres@192.168.3.52:8800/aprinto',
+                       encoding='utf-8',
+                       echo=False)
+from codecs import encode as codecs_encode
+import sys
+reload(sys)
+sys.setdefaultencoding('UTF8')
+
+
+def parse_xml(pdf_contents):
+    x = soup(codecs_encode(pdf_contents,'utf8','ignore')).findAll('page')
+    cols = ['page','font','top','left','width','height','text']
+    g = pd_DataFrame(columns=cols)
+    for pg in x:
+        idx = x.index(pg)+1
+        pg = str(pg)
+        line_iter = re_findall(r'(<text.*?</text>)',pg)
+
+        for it in line_iter:
+            a = ['page']+re_findall('([a-zA-Z]+)+\=', it)+['text']
+            text_attrs = it[5:it.find('>')].strip()
+            text_contents = str(soup(it).text)
+            b = [idx]+map(lambda s: int(s),re_findall('[0-9]+', text_attrs))+[text_contents]
+            if text_contents.strip() != '':
+                g = g.append(dict(zip(a,b)),ignore_index=True)
+    return g
+
 
 @shared_task
-def cleanup_uploads(doc,f_pdf,f_xml):
+def cleanup_uploads(doc,f_pdf,f_xml,new_folder='processed',end_status='C'):
     os_cmd('rm '+f_xml)
-    new_f_pdf = os_path.dirname(os_path.dirname(f_pdf))+'/processed/'+f_pdf[f_pdf.rfind('/')+1:]
-    if os_path.isfile(new_f_pdf):
-        new_f_pdf = new_f_pdf.replace('.pdf','_dupe.pdf')
-    # TODO: SEND EMAIL IF DUPE FILE
+    new_file_name       = doc.order_tag+'_'+doc.pdf_id+'.pdf'
+    new_f_pdf           = os_path.dirname(os_path.dirname(f_pdf))+'/'+new_folder+'/'+new_file_name
     os_cmd('mv '+f_pdf+' '+new_f_pdf)
-    doc.local_document = new_f_pdf
-    doc.status = 'C'
-    doc.date_completed = dt.utcnow()
+    doc.local_document  = new_f_pdf
+    doc.status          = end_status
+    doc.date_completed  = dt.utcnow()
     doc.save()
     return True
 @shared_task
@@ -86,7 +110,7 @@ def parse_xml_and_update_db(doc,f_pdf,f_xml):
     doc.order_tip       = 5.00
 
 
-    doc.status = 'D'
+    doc.status = 'P'
     doc.date_xml_parsed = dt.utcnow()
     doc.save()
 
@@ -95,7 +119,7 @@ def parse_xml_and_update_db(doc,f_pdf,f_xml):
 
     return True
 @shared_task
-def read_xml_and_update_db(doc,f_pdf,f_xml):
+def read_xml_into_db(doc,f_pdf,f_xml,cred):
     f = open(f_xml,'r')
     doc.doc_as_xml = f.read()
     f.close()
@@ -103,28 +127,60 @@ def read_xml_and_update_db(doc,f_pdf,f_xml):
     doc.date_xml_saved = dt.utcnow()
     doc.save()
 
-    parse_xml_and_update_db.delay(doc,f_pdf,f_xml)
+    if cred=='vendor':  parse_xml_and_update_db.delay(doc,f_pdf,f_xml)
+    elif cred=='admin': admin_req.delay(doc,f_pdf)
 
     return True
 @shared_task
-def extract_text(doc,f_pdf):
+def extract_text(doc,f_pdf,cred='credentials'):
     f_xml = f_pdf.replace('.pdf','.xml')
     os_cmd('/usr/bin/pdftohtml -i -c -xml '+f_pdf+' '+f_xml)
     doc.status = 'X'
     doc.date_extracted = dt.utcnow()
     doc.save()
-    read_xml_and_update_db.delay(doc,f_pdf,f_xml)
-
+    read_xml_into_db.delay(doc,f_pdf,f_xml,cred)
     return True
 @shared_task
-def process_file(doc):
+def add_new_vendor_info(doc,f_pdf,g='Parsed PDF'):
+    p = parties     = g[ ((115<=g.top)&(g.top<=200)) ]
+    c = client      = p[ ((520<=p.left)&(p.left<=530)) ].sort('top')
+    c = c.text.map(lambda s: unicode(s, errors='ignore')).tolist()
+    v_tel           = re_sub(r'[\W_]+', '', c[3])
+    if not vendor.objects.filter(vend_tel=v_tel):
+        v,v_created = vendor.objects.get_or_create(created=dt.utcnow(),
+                                                   vend_name=c[0].strip(),
+                                                   vend_addr=c[1].strip()+', '+c[2].strip(),
+                                                   vend_tel=v_tel)
+        v.save()
+        doc.vendor_id = v.vendor_id
+        doc.status      = 'NV'
+        cleanup_uploads(doc,f_pdf,f_pdf.replace('.pdf','.xml'),new_folder='contracts')
+    else:
+        cleanup_uploads(doc,f_pdf,f_pdf.replace('.pdf','.xml'),new_folder='to_review',end_status='AR')
+    doc.save()
+    return True
+@shared_task
+def admin_req(doc,f_pdf):
+    g                   = parse_xml(doc.doc_as_xml)
+    chk_trial_period    = g.sort('top').text.str.contains('SERVICE AGREEMENT').tolist().count(True)!=0
+    if chk_trial_period:  add_new_vendor_info.delay(doc,f_pdf,g)
+    doc.status = 'AR'
+    doc.save()
+    return True
+
+@shared_task
+def unknown_req(doc,f_pdf):
+    pass
+
+@shared_task
+def queue_file(doc):
     """
-    Workflow:                                   Document State:
+    Vendor PDF Workflow:                         Document State:
         .. (file previously uploaded)                   U
         1. add doc to queue for processing          --> Q
         1. generate XML from PDF,                   --> X
         2. save XML contents to DB                  --> S
-        3. parse contents and update DB             --> D
+        3. parse contents and update DB             --> P
         4. forward order to gnamgnam                --> F
         5. [ if exception/error ... ]               --> E
         6. [ if completed ... ]                     --> C
@@ -134,11 +190,16 @@ def process_file(doc):
     doc.date_queued = dt.utcnow()
     doc.save()
 
-    extract_text.delay(doc,f_pdf)
+    # # Check Credentials and Queue Files Accordingly
+    vendor_chk          = vendor.objects.filter(machine_id=doc.machine_id).exists()
+    admin_chk           = admin.objects.filter(machine_id=doc.machine_id).exists()
+    if vendor_chk:      extract_text.delay(doc,f_pdf,cred='vendor')
+    elif admin_chk:     extract_text.delay(doc,f_pdf,cred='admin')
+    else:               unknown_req.delay(doc,f_pdf)
 
     return True
 
-#
+
 # class CheckResponseQueueTask(PeriodicTask):
 #     """
 #     Checks response queue for messages returned from running processes in the

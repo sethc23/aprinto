@@ -11,11 +11,16 @@ from django.utils.translation import ugettext_lazy as _
 
 DOCUMENT_STATES = (
     ('U', _('Uploaded')),
-    ('S', _('Stored Remotely')),
     ('Q', _('Queued')),
-    ('P', _('Processing')),
-    ('F', _('Finished')),
-    ('E', _('Processing Error')))
+    ('X', _('XML Created from PDF')),
+    ('S', _('XML Saved to DB')),
+    ('P', _('XML Parsed and DB Updated')),
+    ('F', _('Order Forwarded to GnamGnam')),
+    ('E', _('Processing Error')),
+    ('C', _('Processing Complete')),
+    ('AR', _('Admin Request')),
+    ('NV',_('New Vendor Added')))
+
 
 def path_and_rename(path):
     def wrapper(instance, filename):
@@ -31,17 +36,17 @@ def path_and_rename(path):
     return wrapper
 
 class PDF(models.Model):
-    pdf_id = models.CharField(max_length=38, primary_key=True) # e.g., 6B29FC40-CA47-1067-B31D-00DD010662DA
-    created = models.DateTimeField(auto_now=True)
-    order_tag = models.CharField(max_length=4,blank=True,null=True)
-    printer_id = models.TextField(blank=True,null=True)
-    machine_id = models.TextField(blank=True,null=True)
-    application_name  = models.TextField(blank=True,null=True)
-    doc_name = models.CharField(_("Title"), blank=True, null=True, max_length=100)
+    pdf_id          = models.CharField(max_length=38, primary_key=True) # e.g., 6B29FC40-CA47-1067-B31D-00DD010662DA
+    created         = models.DateTimeField(auto_now=True)
+    order_tag       = models.CharField(max_length=4,blank=True,null=True)
+    printer_id      = models.TextField(blank=True,null=True)
+    machine_id      = models.TextField(blank=True,null=True)
+    application_name= models.TextField(blank=True,null=True)
+    doc_name        = models.CharField(_("Title"), blank=True, null=True, max_length=100)
     # local_document = models.FileField(_("Local Document"), null=True, blank=True,
     #                                   upload_to=path_and_rename(settings.PDF_UPLOAD_PATH),
     #                                   max_length=255)
-    local_document = models.FileField(_("Local Document"), null=True, blank=True,
+    local_document  = models.FileField(_("Local Document"), null=True, blank=True,
                                       upload_to='uploads/',
                                       max_length=255)
     qr_url          = models.TextField(blank=True,null=True)
@@ -56,7 +61,7 @@ class PDF(models.Model):
     order_tip       = models.FloatField(blank=True,null=True)
 
     remote_document = models.URLField(_("Remote Document"), null=True, blank=True)
-    status          = models.CharField(_("Remote Processing Status"), default='U', max_length=1, choices=DOCUMENT_STATES)
+    status          = models.CharField(_("Remote Processing Status"), default='U', max_length=2, choices=DOCUMENT_STATES)
     processing_exception = models.TextField(_("Processing Exception"), null=True, blank=True)
     #pages           = models.IntegerField(_("Number of Pages in Document"), null=True, blank=True)
 
@@ -95,9 +100,18 @@ class PDF(models.Model):
         super(PDF, self).save(**kwargs)
 
 class vendor(models.Model):
-    vendor_id = models.AutoField(max_length=11, primary_key=True)
-    created = models.DateTimeField(auto_now=True)
-    machine_id = models.TextField(blank=True,null=True)
-    biz_name = models.TextField(blank=True,null=True)
-    addr = models.TextField(blank=True,null=True)
-    recipient_emails = models.TextField(blank=True,null=True)
+    vendor_id       = models.AutoField(max_length=11, primary_key=True)
+    created         = models.DateTimeField(auto_now=True)
+    machine_id      = models.TextField(blank=True,null=True)
+    vend_name       = models.TextField(blank=True,null=True)
+    vend_addr       = models.TextField(blank=True,null=True)
+    vend_tel        = models.CharField(max_length=10,blank=True,null=True)
+    recipient_emails= models.TextField(blank=True,null=True)
+
+class admin(models.Model):
+    admin_id        = models.AutoField(max_length=11, primary_key=True)
+    created         = models.DateTimeField(auto_now=True)
+    machine_id      = models.TextField(blank=True,null=True)
+    admin_name      = models.TextField(blank=True,null=True)
+    admin_tel       = models.CharField(max_length=10,blank=True,null=True)
+    admin_email     = models.EmailField(blank=True,null=True)

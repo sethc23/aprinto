@@ -9,7 +9,7 @@ from django.template import RequestContext
 from pdf.forms import DocumentForm,PDF_Form
 from pdf.tasks import process_file,extract_text
 from pdf.models import Document
-from app.models import PDF
+from aprinto.models import PDF
 
 from django.contrib.auth.models import User
 from aprinto.settings import BASE_QR_URL,INCL_CHARS,INCL_CHARS_LEN

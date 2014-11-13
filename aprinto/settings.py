@@ -43,14 +43,13 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    'app',
-    # 'pdf',
     'aprinto',
+    'rest_framework',
+    'djcelery',
+    # 'pdf',
     # 'ghettoq',
-    # 'djcelery',
     # 'djcelery.transport',
     # 'kombu',
-    'rest_framework',
 )
 
 MIDDLEWARE_CLASSES = (

@@ -4,7 +4,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from pdf.models import Document
-from app.models import PDF
+from aprinto.models import PDF
 
 
 class DocumentValidationError(forms.ValidationError):
