@@ -5,6 +5,7 @@ include/
 lib/
 virtualenv/
 .idea/
+ENV/
 
 # Specific Files #
 ##################

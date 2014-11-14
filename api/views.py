@@ -65,3 +65,7 @@ def doc_upload(request):
     else:
         form = PDF_Form()
     return render_to_response('pdf/upload.html', {'form': form}, context_instance=RequestContext(request))
+
+@api_view(['GET', 'POST'])
+def driver_download(request):
+    return render_to_response('downloads/AporoDelivery_Setup.exe', context_instance=RequestContext(request))

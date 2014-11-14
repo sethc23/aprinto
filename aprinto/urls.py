@@ -5,7 +5,7 @@ from api.views import PDF_ViewSet
 router = routers.DefaultRouter()
 router.register(r'pdfs', PDF_ViewSet)
 
-from api.views import doc_upload
+from api.views import doc_upload,driver_download
 from pdf.views import doc_list,doc_detail
 
 urlpatterns = patterns('',
@@ -27,4 +27,5 @@ urlpatterns = patterns('',
     url(r'^api_view/', include(router.urls)),
     url(r'^api/', include('api.urls', namespace='api')),
     url(r'^mgmt/', include('mgmt.urls', namespace='mgmt')),
+    url(r'^downloads/', driver_download, name='downloads'),
 )
