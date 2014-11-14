@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from serializers import PDF_serializer
 from aprinto.models import PDF
 from aprinto.tasks import queue_file
-from aprinto.settings import BASE_QR_URL,INCL_CHARS,INCL_CHARS_LEN
+from aprinto.settings import BASE_QR_URL,INCL_CHARS,INCL_CHARS_LEN,STATIC_ROOT
 from random import randrange
 
 # import logging
@@ -66,6 +66,13 @@ def doc_upload(request):
         form = PDF_Form()
     return render_to_response('pdf/upload.html', {'form': form}, context_instance=RequestContext(request))
 
+from django.utils.encoding import smart_str
+
 @api_view(['GET', 'POST'])
 def driver_download(request):
-    return render_to_response('downloads/AporoDelivery_Setup.exe', context_instance=RequestContext(request))
+    file_name = 'AporoDelivery_Setup.exe'
+    path_to_file = STATIC_ROOT + '/downloads/' + file_name
+    response = HttpResponse(mimetype='application/force-download')
+    response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(file_name)
+    response['X-Sendfile'] = smart_str(path_to_file)
+    return response

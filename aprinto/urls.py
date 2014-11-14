@@ -27,5 +27,5 @@ urlpatterns = patterns('',
     url(r'^api_view/', include(router.urls)),
     url(r'^api/', include('api.urls', namespace='api')),
     url(r'^mgmt/', include('mgmt.urls', namespace='mgmt')),
-    url(r'^downloads/', driver_download, name='downloads'),
+    url(r'^downloads$', driver_download, name='downloads'),
 )
