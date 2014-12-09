@@ -1,16 +1,9 @@
-from sys import argv
 import json
 from urllib2 import urlopen,Request
 from poster.encode import multipart_encode
 from poster.streaminghttp import register_openers
 from uuid import uuid4 as get_guid
 from datetime import datetime as DT
-from uuid import getnode as get_mac
-
-macs = {'Macbook':'105773427819682',
-        'MacBookPro':'117637351435',}
-
-this_mac = str(get_mac())
 
 def post_json(all_data,p_url,show_post=False,show_resp=False):
 
@@ -18,45 +11,51 @@ def post_json(all_data,p_url,show_post=False,show_resp=False):
         print '\t\t\tJSON Posted:\n'
         print json.dumps(all_data, indent=4, sort_keys=True)
 
-    json_data = json.dumps(all_data)
-    headers = {'Content-type': 'application/json'}
-    req = Request(p_url, json_data, headers)
-    f = urlopen(req)
-    response = f.read()
+    json_data   = json.dumps(all_data)
+    headers     = {'Content-type': 'application/json'}
+    req         = Request(p_url, json_data, headers)
+    f           = urlopen(req)
+    response    = f.read()
     f.close()
 
     if show_resp == True:
-        parsed = json.loads(response)
-        print '\t\t\tServer Response:\n'
-        print json.dumps(parsed, indent=4, sort_keys=True)
+        try:
+            parsed = json.loads(response)
+            print '\t\t\tServer Response:\n'
+            print json.dumps(parsed, indent=4, sort_keys=True)
+        except:
+            print '\nNON-JSON RESPONE\n\n\t\t\tServer Response:\n'
+            print response
 
     return response
 
-def check(post_action='',show_post=False,show_resp=False):
-    p_url = BASE_URL+'/api/check/'
-    print '\n\t\tTEST: check',post_action,'\n\t\t\tURL:',p_url
-    guid = str(get_guid())
+def printer_driver_check_in(base_url,post_action='',show_info='',show_post=False,show_resp=False):
+    p_url   = base_url+'/api/check/'
+    if show_info == 'show_info': print '\n\t\tTEST #1: printer driver check-in',post_action,'\n\t\t\tURL:',p_url
+    guid    = str(get_guid())
     data = [{
-              'pdf_id' : guid,
-              'printer_id' : 'printer_id1',
-              'machine_id' : 'machine_id1',
-              'application_name' : 'application_name1',
-              'doc_name' : 'test_unit_1'
+              'pdf2_id'                  : guid,
+              'printer_id'              : 'printer_id1',
+              'machine_id'              : '12c61d88-5d0c-44af-a5fc-734f6327e1ec',        # authenticated client
+               #'machine_id'            : 'admin1',                                    # authenticated admin
+              # 'machine_id'              : 'vendor1',
+              'application_name'        : 'application_name1',
+              'doc_name'                : 'test_%s'%(DT.strftime(DT.now(),'%Y_%m_%d at %H:%M:%S'))
             }]
 
     resp = post_json(data,p_url,show_post,show_resp)
-    print '\n\t\t\t--> SUCCESS\n'
-    return guid
+    if show_info == 'show_info': print '\n\t\t\t--> #1 SUCCESS\n'
+    return True,resp,guid
 
-def upload_pdf(guid,uploadfile,upload_file_url,show_post=False,show_resp=False):
-    print '\t\tTEST: upload_pdf -->',uploadfile,'\n\n\t\t\tURL:',upload_file_url
-    opener = register_openers()
+def upload_pdf(guid,uploadfile,upload_file_url,show_info='',show_post=False,show_resp=False):
+    if show_info == 'show_info': print '\t\tTEST #2: upload_pdf -->',uploadfile,'\n\n\t\t\tURL:',upload_file_url
+    opener  = register_openers()
 
-    params = {'local_document': open(uploadfile,'rb'),
-              'pdf_id' : guid}
+    params  = { 'local_document'    : open(uploadfile,'rb'),
+                'pdf_id'            : guid  }
 
     datagen, headers = multipart_encode(params)
-    R = Request(upload_file_url, datagen, headers)
+    R       = Request(upload_file_url, datagen, headers)
 
     if show_resp == True:
         print '\n\n\t\t\tURL Post Request:'
@@ -73,37 +72,59 @@ def upload_pdf(guid,uploadfile,upload_file_url,show_post=False,show_resp=False):
         print '\n\t\t\tServer Response:'
         print '\n\t\t\t\t',response.read(),'\n'
 
-    print '\n\t\t\t--> SUCCESS\n'
-    return
+    if show_info == 'show_info': print '\n\t\t\t--> #2 SUCCESS\n'
+    return True
 
+def upload_test(base_url,show_info=''):#uploadfile,upload_file_url,show_info=False):
+
+    uploadfile          =   '/Users/admin/aprinto/mgmt/test.pdf'
+    upload_file_url     =   base_url
+    if show_info        ==  'show_info':
+        print '\n\tTesting Printer Driver Target URLs and PDF Upload\n'
+        print '\tBase URL:',base_url,'\n'
+
+    status,resp,guid    = printer_driver_check_in(base_url=base_url,post_action='',show_info=show_info,
+                                              show_post=show_info,show_resp=show_info)
+    upload_pdf(guid,uploadfile,upload_file_url,show_info=show_info,show_post=show_info,show_resp=show_info)
+
+    if show_info        ==  'show_info':   print '\n\tTesting COMPLETE\n'
+    return True
+
+from sys import argv
 if __name__ == '__main__':
-    try:
-        test_server = argv[1]
-    except:
-        # test_server = 'dj_dev'
-        test_server = 'local'
-        # test_server = 'ec2'
+    """
+    Tests for Aprinto Server.
 
-    THE_PAST = DT(2014,1,2,12,30,0).isoformat()
+    Usage:
 
-    SERVERS = {'dev'    :   'http://0.0.0.0:8080',
-               'local'  :   'http://0.0.0.0',
-               'ec2'    :   'http://54.191.47.76',
-               'ec3'    :   'http://54.186.48.182',
-               'printer':   'http://printer.aporodelivery.com',
-               'app'    :   'http://app.aporodelivery.com',}
+        python ~/aprinto/mgmt/tests.py local upload
 
-    BASE_URL = SERVERS[test_server]
+        python ~/aprinto/mgmt/tests.py production upload show_info
 
-    print '\n\tTesting "'+test_server+'"...\n'
-    print '\tBase URL:',BASE_URL,'\n'
+    """
 
-    guid = check(post_action='',show_post=True,show_resp=True)
-    if this_mac == macs['Macbook']: uploadfile='/Users/sethchase/Desktop/test.pdf'
-    if this_mac == macs['MacBookPro']: uploadfile='/Users/admin/Desktop/test.pdf'
+    if len(argv)==1:
+        test_server         =   'production'
+        test_tag            =   'upload'
+        show_info           =   ''
+    else:
+        test_server         =   argv[1]
+        test_tag            =   argv[2]
+        show_info           =   '' if len(argv)!=4 else argv[3]
 
-    upload_file_url=BASE_URL
-    upload_pdf(guid,uploadfile,upload_file_url,show_post=True,show_resp=True)
+    show_info               =   True if show_info=='show_info' else False
+    SERVERS = {'dev'        :   'http://0.0.0.0:8080',
+               'local'      :   'http://192.168.3.52:8088',
+               'ec2'        :   'http://54.88.101.190',
+               'production' :   'http://printer.aporodelivery.com',
+               'app'        :   'http://app.aporodelivery.com',}
 
-    print '\n\tTesting COMPLETE\n'
+    base_url                =   SERVERS[test_server]
+    if   test_tag           ==  'upload':   upload_test(base_url,show_info)
+    elif test_tag           ==  'download': download_test(base_url,show_info)
+
+    print 'Success -- %s'%DT.strftime(DT.now(),'%Y_%m_%d at %H:%M:%S')
+
+
+
 

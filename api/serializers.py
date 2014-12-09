@@ -15,5 +15,4 @@ class PDF_serializer(serializers.HyperlinkedModelSerializer):
 class Initial_PDF_serializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = PDF
-        fields = ['pdf_id','order_tag','application_name','doc_name','qr_url',
-                  'machine_id','printer_id','doc_post_url','qr_code_x','qr_code_y','qr_code_scale']
+        fields = ['pdf_id','printer_id','machine_id','application_name','doc_name']

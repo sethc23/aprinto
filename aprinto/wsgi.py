@@ -10,7 +10,7 @@ from sys import path as sys_path
 
 f = __file__
 
-#project_space = '/Users/admin/Dropbox/BD_Scripts/django/Dropbox/aprinto/aprinto'    # os_path.dirname(f)
+#project_space = '/Users/admin/SERVER2/BD_Scripts/django/Dropbox/aprinto/aprinto'    # os_path.dirname(f)
 #work_space = os_path.dirname(project_space)
 #
 #if str(this_mac)==macs['Macbook']:
