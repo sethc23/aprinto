@@ -7,7 +7,7 @@ Scenario Outline: Confirm All Servers and Webpages are live
 
     Given "<page_title>" is live
     When  we access "<webpage>"
-    Then  the page should start loading within "<response_time>"
+    Then  the page should start loading within "<response_time>" seconds
     And   the response message should be "OK"
     And   the response code should be "200"
 

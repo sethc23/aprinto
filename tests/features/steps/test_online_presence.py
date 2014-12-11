@@ -5,8 +5,8 @@ py_path.append('/Users/admin/SERVER3/aprinto')
 
 import requests
 
-test_url = '192.168.3.52'
-BASE_URL = 'http://'+test_url+':8088'
+# test_url = '192.168.3.52'
+# BASE_URL = 'http://'+test_url+':8088'
 
 class VisitWebpage(object):
     TITLE_TO_URL_MAP = {
@@ -16,7 +16,7 @@ class VisitWebpage(object):
         "GnamGnam Admin Page"       :   "http://admin.gnamgnamapp.com/login",
     }
     TITLE_TO_RESPONSE_TIME_MAP = {
-        "Aporo"                     :   "5.0",
+        "Aporo"                     :   "0.00001",
         "GnamGnam Home Page"        :   "5.0",
         "GnamGnam Join Us Page"     :   "5.0",
         "GnamGnam Admin Page"       :   "5.0",
