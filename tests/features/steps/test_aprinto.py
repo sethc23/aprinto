@@ -18,22 +18,6 @@ BASE_URL = 'http://'+test_url+':8088'
 engine_url = 'postgresql://postgres:postgres@'+test_url+':8800/aprinto'
 engine = create_engine(engine_url,encoding='utf-8',echo=False)
 
-@given('we request a page on the Aporo server')
-def step_impl(context):
-    headers             =   {'Content-type': 'application/json'}
-    req                 =   requests.request('POST',BASE_URL+'/api/check/')
-    context.resp_code   =   req.status_code
-    context.resp_msg    =   req.reason
-
-@then('the response code should be "{text}"')
-def step_impl(context,text):
-    assert_that( context.resp_code,equal_to(int(text)), str(context.resp_code))
-
-@then('the response message should be "{text}"')
-def step_impl(context,text):
-    context.resp_msg        =   text
-
-
 @given('data for posting to Aporo')
 def step_impl(context):
     headers             =   {'Content-type' :   'application/json'}
