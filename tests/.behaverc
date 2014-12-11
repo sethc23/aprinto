@@ -4,6 +4,7 @@ dry_run                 =   False
 format                  =   null
 junit                   =   False
 log_capture             =   False
+#logging_level           =   INFO
 logging_level           =   ERROR
 #logging_clear_handlers =   yes
 #logging_filter         =   -suds
@@ -18,6 +19,7 @@ stdout_capture          =   False
 summary                 =   False
 stderr_capture          =   False
 show_source             =   False
+stop                    =   False
 verbose                 =   False
 
 

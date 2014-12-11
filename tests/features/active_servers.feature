@@ -5,11 +5,9 @@ Feature: Verify Online Presence
 
 Scenario Outline: Confirm All Servers and Webpages are live
 
-    Given "<page_title>" is live
-    When  we access "<webpage>"
+    Given "<page_title>" is live and we access "<webpage>"
     Then  the page should start loading within "<response_time>" seconds
-    And   the response message should be "OK"
-    And   the response code should be "200"
+    And   the response message should be "OK" with response code "200"
 
     Examples: Servers & Webpages
         | page_title                | webpage                                   | response_time |
