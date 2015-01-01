@@ -38,9 +38,14 @@ def step_impl(context):
 @when('the data is posted to Aporo')
 def step_impl(context):
     p_url                   =   BASE_URL+'/api/check/'
-    req                     =   requests.request('POST',p_url,**context.data)
-    assert_that(req.reason,equal_to("CREATED"))
-    context.req             =   req
+    try:
+        req                 =   requests.request('POST',p_url,**context.data)
+        assert_that(req.reason,         equal_to("CREATED"))
+        context.req         =   req
+    except requests.exceptions.ConnectionError as x:
+        context.resp_code   =   x.args[0].args[1].args[0]
+        context.resp_msg    =   x.args[0].args[1].args[1]
+        assert_that(context.resp_msg,   equal_to('OK'))
 
 @then('Aporo creates a New Order')
 def step_impl(context):

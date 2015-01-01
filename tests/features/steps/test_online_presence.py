@@ -1,6 +1,7 @@
 from behave import *
 from hamcrest import assert_that, equal_to, is_not
 import requests
+#from sys import exc_info
 from sys import path as py_path
 py_path.append('/Users/admin/SERVER3/aprinto')
 
@@ -22,9 +23,14 @@ def step_impl(context,response_time):
         context.timeout     =   False
         context.resp_code   =   req.status_code
         context.resp_msg    =   req.reason
+    except requests.exceptions.ConnectionError as x:
+        context.timeout     =   False
+        context.resp_code   =   x.args[0].args[1].args[0]
+        context.resp_msg    =   x.args[0].args[1].args[1]
+        assert_that(context.resp_msg,           equal_to('OK'))
     except requests.Timeout:
         context.timeout     =   True
-    assert_that( context.timeout,   equal_to(False) )
+        assert_that( context.timeout,   equal_to(False) )
 
 @then('the response message should be "{msg}" with response code "{code}"')
 def step_impl(context,msg,code):
